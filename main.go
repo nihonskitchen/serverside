@@ -1,41 +1,50 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
+	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 
-	firebase "firebase.google.com/go"
-
-	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
+	repositories "github.com/takunyan/go-learn/repositories"
+	routes "github.com/takunyan/go-learn/routes"
 )
 
 func main() {
-	ctx := context.Background()
-	sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
-	app, err := firebase.NewApp(ctx, nil, sa)
-	fmt.Println("sucsess")
+	// set firestore client
+	repositories.SetFirestoreClient()
+
+	// set Server things
+	app := fiber.New()
+	app.Use(logger.New())
+	setupRoutes(app)
+
+	err := app.Listen(":8000")
+
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
+}
 
-	client, err := app.Firestore(ctx)
-	if err != nil {
-		log.Fatalln(err)
-	}
+func setupRoutes(app *fiber.App) {
 
-	iter := client.Collection("users").Documents(ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
-		}
-		fmt.Println(doc.Data())
-	}
+	// give response when at /
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": true,
+			"message": "rootやで",
+		})
+	})
 
-	defer client.Close()
+	// api group
+	api := app.Group("/api")
+
+	// give response when at /api
+	api.Get("", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": true,
+			"message": "You are at the api endpoint 😉",
+		})
+	})
+
+	// connect todo routes
+	routes.UserRoute(api.Group("/users"))
 }
