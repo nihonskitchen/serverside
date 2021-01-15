@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	repositories "github.com/takunyan/go-learn/repositories"
+	repositories "github.com/nihonskitchen/serverside/repositories"
 )
 
 //TODO get all users
