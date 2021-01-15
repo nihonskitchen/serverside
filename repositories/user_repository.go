@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
+	"golang.org/x/oauth2/google"
 
 	//"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
@@ -53,9 +55,18 @@ func GetUser() map[string]interface{} {
 
 // Set firestore client
 func SetFirestoreClient() {
+	gopath := os.Getenv("SHELL")
+	fmt.Println(gopath)
 	//TODO  envに隠す
-	sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
-	app, err := firebase.NewApp(ctx, nil, sa)
+	// sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
+	// app, err := firebase.NewApp(ctx, nil, sa)
+
+	credentials, err := google.CredentialsFromJSON(ctx, []byte(os.Getenv("FIREBASE_KEYFILE_JSON")))
+	if err != nil {
+		log.Printf("error credentials from json: %v\n", err)
+	}
+	opt := option.WithCredentials(credentials)
+	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -4,8 +4,8 @@ import (
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
-	repositories "github.com/takunyan/go-learn/repositories"
-	routes "github.com/takunyan/go-learn/routes"
+	repositories "github.com/nihonskitchen/serverside/repositories"
+	routes "github.com/nihonskitchen/serverside/routes"
 )
 
 func main() {
