@@ -1,6 +1,9 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
@@ -17,7 +20,14 @@ func main() {
 	app.Use(logger.New())
 	setupRoutes(app)
 
-	err := app.Listen(":8000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+
+	}
+	log.Printf("Listening on port %s\n\n", port)
+
+	err := app.Listen(port)
 
 	if err != nil {
 		panic(err)
