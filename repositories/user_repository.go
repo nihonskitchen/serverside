@@ -55,8 +55,6 @@ func GetUser() map[string]interface{} {
 
 // Set firestore client
 func SetFirestoreClient() {
-	gopath := os.Getenv("SHELL")
-	fmt.Println(gopath)
 	//TODO  envに隠す
 	// sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
 	// app, err := firebase.NewApp(ctx, nil, sa)

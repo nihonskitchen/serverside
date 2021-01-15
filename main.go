@@ -22,12 +22,11 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
-
+		port = "8000"
 	}
 	log.Printf("Listening on port %s\n\n", port)
 
-	err := app.Listen(port)
+	err := app.Listen(":" + port)
 
 	if err != nil {
 		panic(err)
