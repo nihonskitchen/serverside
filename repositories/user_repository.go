@@ -4,14 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
-	"golang.org/x/oauth2/google"
-
-	//"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+	//"google.golang.org/api/iterator"
 )
 
 // Define firestore client & context
