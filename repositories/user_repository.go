@@ -52,9 +52,9 @@ func GetUser() map[string]interface{} {
 
 	log.Printf("repo before field.data")
 	user := field.Data()
-	for key, value := range user {
-		fmt.Printf("key: %v, value: %v\n", key, value)
-	}
+	// for key, value := range user {
+	// 	fmt.Printf("key: %v, value: %v\n", key, value)
+	// }
 
 	log.Printf("repo after get user")
 
