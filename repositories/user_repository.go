@@ -25,6 +25,21 @@ type User struct {
 // TODO まだ全ユーザー取れてない
 func GetUser() map[string]interface{} {
 
+	credentials, err := google.CredentialsFromJSON(ctx, []byte(os.Getenv("FIREBASE_KEYFILE_JSON")))
+	if err != nil {
+		log.Printf("error credentials from json: %v\n", err)
+	}
+	opt := option.WithCredentials(credentials)
+	app, err := firebase.NewApp(ctx, nil, opt)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client, err = app.Firestore(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	defer client.Close()
 
 	// log.Printf("repo before get client")
