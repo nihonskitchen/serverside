@@ -53,7 +53,11 @@ func GetUser() map[string]interface{} {
 	}
 
 	log.Printf("repo before field.data")
-	user := field.Data()
+	var user map[string]interface{}
+	if err := field.DataTo(&user); err != nil {
+		fmt.Errorf("error get dataTo: %v", err)
+	}
+	//user := field.Data()
 	// for key, value := range user {
 	// 	fmt.Printf("key: %v, value: %v\n", key, value)
 	// }
