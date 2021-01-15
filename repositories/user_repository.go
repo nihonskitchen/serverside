@@ -37,6 +37,8 @@ func GetUser() map[string]interface{} {
 	// 	fmt.Println(doc.Data())
 	// }
 
+	defer client.Close()
+
 	log.Printf("repo before get client")
 	// 値の取得
 	collection := client.Collection("users")
