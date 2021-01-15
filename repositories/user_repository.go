@@ -37,6 +37,7 @@ func GetUser() map[string]interface{} {
 	// 	fmt.Println(doc.Data())
 	// }
 
+	log.Printf("repo before get user")
 	// 値の取得
 	collection := client.Collection("users")
 	doc := collection.Doc("user2")
@@ -48,6 +49,8 @@ func GetUser() map[string]interface{} {
 	for key, value := range user {
 		fmt.Printf("key: %v, value: %v\n", key, value)
 	}
+
+	log.Printf("repo after get user")
 
 	return user
 }
