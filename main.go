@@ -26,7 +26,7 @@ func main() {
 	}
 	log.Printf("Listening on port %s\n\n", port)
 
-	err := app.Listen("nihons-kitchen-server.herokuapp.com:" + port)
+	err := app.Listen(":" + port)
 
 	if err != nil {
 		panic(err)
