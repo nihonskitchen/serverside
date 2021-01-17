@@ -3,13 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
-	"log"
-
-	"cloud.google.com/go/firestore"
-	firebase "firebase.google.com/go"
-
 	//"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
 )
 
 // // Define firestore client & context
@@ -31,18 +25,21 @@ type Ingredient struct {
 // GetIngredient returns a ingredient.
 func GetIngredient() map[string]interface{} {
 
+	client := SetFirestoreClient()
+	defer client.Close()
+
 	// Set firestore client
 	//TODO  envに隠す
-	sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
-	app, err := firebase.NewApp(ctx, nil, sa)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
+	// app, err := firebase.NewApp(ctx, nil, sa)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	client, err = app.Firestore(ctx)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// client, err = app.Firestore(ctx)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
 	//TODO closeをどうするか？
 	//defer client.Close()
@@ -61,7 +58,7 @@ func GetIngredient() map[string]interface{} {
 	// }
 
 	// Define firestore client & context
-	var client *firestore.Client
+	//var client *firestore.Client
 	var ctx = context.Background()
 
 	// 値の取得
