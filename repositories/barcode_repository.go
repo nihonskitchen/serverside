@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,25 +24,27 @@ const (
 */
 
 // FindBarcode find a single data of product by JANcode.
-func FindBarcode(ctx *fiber.Ctx) Barcode {
+func FindBarcode(ctx *fiber.Ctx, docBarcode string) Barcode {
 
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
 	defer client.Close()
 
 	// ドキュメント名（jancode）を渡す
-	jancode := ctx.Params("jancode")
+	// jancode := ctx.Params("jancode")
 
+	// Firestore上のコレクション名
 	collectionName := "barcode"
 
 	// 値の取得
 	collection := client.Collection(collectionName)
-	doc := collection.Doc(jancode)
+	doc := collection.Doc(docBarcode)
 	field, err := doc.Get(context.Background())
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 	}
 	var barcode Barcode
+
 	if field != nil {
 		barcode = Barcode{
 			ID:          field.Data()["id"].(string),
@@ -95,10 +97,17 @@ func SaveBarcode(barcode Barcode) (Barcode, error) {
 	client := SetFirestoreClient()
 	defer client.Close()
 
+	// Firestore上のコレクション名
+	collectionName := "barcode"
+
 	// Firestore登録用にBarcode型からMapに変換
 	// 使用するならref, resultを受け取る
+	// Add()使用時はランダムな文字列がドキュメント識別子に設定される
+	// ドキュメント識別子はDoc()で指定できる
+
 	//ref, result, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
-	_, _, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
+	//_, _, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
+	_, err := client.Collection(collectionName).Doc(barcode.Barcode).Set(ctx, map[string]interface{}{
 		"id":           barcode.ID,
 		"barcode":      barcode.Barcode,
 		"product_name": barcode.ProductName,
@@ -108,7 +117,7 @@ func SaveBarcode(barcode Barcode) (Barcode, error) {
 	})
 
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 	}
 
 	return barcode, err

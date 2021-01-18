@@ -22,14 +22,19 @@ func GetAllBarcodes(ctx *fiber.Ctx) error {
 
 //GetBarcode is called by GET /api/barcode/:jancode
 func GetBarcode(ctx *fiber.Ctx) error {
-	//log.Printf("controller before get barcode")
+	// ドキュメント名を渡す
+	docBarcode := ctx.Params("jancode")
 
-	barcode := repositories.FindBarcode(ctx)
-
-	//log.Printf("controller after get barcode")
+	if docBarcode == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "No Document of the JANcode",
+		})
+	}
+	barcode := repositories.FindBarcode(ctx, docBarcode)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": "成功やで",
+		"success": "Got product by JANcode",
 		"data": fiber.Map{
 			"barcode": barcode,
 		},
@@ -75,7 +80,7 @@ func CreateBarcode(ctx *fiber.Ctx) error {
 		})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"ok":             true,
+		"success":        "Created New Product Data with Barcode",
 		"createdBarcode": createdBarcode,
 	})
 }
