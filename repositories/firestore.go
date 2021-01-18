@@ -9,9 +9,8 @@ import (
 	"google.golang.org/api/option"
 )
 
-// Set firestore client
+// SetFirestoreClient return firebase client
 func SetFirestoreClient() *firestore.Client {
-	//TODO  envに隠す
 	sa := option.WithCredentialsFile("./nihonskitchen-firebase-adminsdk-yjuaq-eac2eb7580.json")
 	app, err := firebase.NewApp(context.Background(), nil, sa)
 	if err != nil {

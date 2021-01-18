@@ -16,26 +16,24 @@ type User struct {
 }
 
 const (
-	collectionName string = "users-test"
+	collectionName string = "users"
 )
 
 // FindUserByID find user by id
-func FindUserByID(ctx *fiber.Ctx) User {
+func FindUserByID(ctx *fiber.Ctx, docID string) User {
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
 	defer client.Close()
 
-	//ドキュメントIDを渡す必要がある
-	id := ctx.Params("id")
-
 	// 値の取得
 	collection := client.Collection(collectionName)
-	doc := collection.Doc(id)
+	doc := collection.Doc(docID)
 	field, err := doc.Get(context.Background())
 	if err != nil {
 		fmt.Errorf("error get data: %v", err)
 	}
 	var user User
+	//TODO 現状ないものを取得した場合落ちる
 	if field != nil {
 		user = User{
 			ID:   field.Data()["ID"].(string),
@@ -91,4 +89,34 @@ func SaveUser(user User) (User, error) {
 	}
 
 	return user, err
+}
+
+// UpdateUser update user
+func UpdateUser(docID string, user User) (User, error) {
+	ctx := context.Background()
+	client := SetFirestoreClient()
+	defer client.Close()
+
+	_, err := client.Collection(collectionName).Doc(docID).Set(ctx, user)
+
+	if err != nil {
+		fmt.Errorf("error get data: %v", err)
+	}
+
+	return user, err
+}
+
+// DeleteUserByID delete user by id
+func DeleteUserByID(docID string) error {
+	ctx := context.Background()
+	client := SetFirestoreClient()
+	// 必ずこの関数の最後でCLOSEするようにする
+	defer client.Close()
+
+	// 値の取得
+	_, err := client.Collection(collectionName).Doc(docID).Delete(ctx)
+	if err != nil {
+		fmt.Errorf("error get data: %v", err)
+	}
+	return nil
 }

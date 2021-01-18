@@ -11,7 +11,7 @@ import (
 func GetAllUsers(ctx *fiber.Ctx) error {
 	users := repositories.FindAllUsers()
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": "成功やで",
+		"success": "Got All Users",
 		"data": fiber.Map{
 			"users": users,
 		},
@@ -20,9 +20,17 @@ func GetAllUsers(ctx *fiber.Ctx) error {
 
 // GetUserByID is called by GET /api/users/:id
 func GetUserByID(ctx *fiber.Ctx) error {
-	user := repositories.FindUserByID(ctx)
+	//ドキュメントIDを渡す必要がある
+	docID := ctx.Params("id")
+	if docID == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "No Document ID",
+		})
+	}
+	user := repositories.FindUserByID(ctx, docID)
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": "成功やで",
+		"success": "Got user by ID",
 		"data": fiber.Map{
 			"users": user,
 		},
@@ -49,8 +57,8 @@ func CreateUser(ctx *fiber.Ctx) error {
 
 	if len(params.ID) == 0 || len(params.Name) == 0 {
 		return ctx.Status(400).JSON(fiber.Map{
-			"ok":    false,
-			"error": "Title or description not specified.",
+			"success": false,
+			"error":   "ID or name not specified.",
 		})
 	}
 
@@ -64,101 +72,78 @@ func CreateUser(ctx *fiber.Ctx) error {
 		})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"ok":          true,
+		"success":     "Created New User",
 		"createdUser": createdUser,
 	})
 }
 
-// func UpdateUser(ctx *fiber.Ctx) error {
-// 	// find parameter
-// 	paramID := c.Params("id")
+// PutUser is called by PUT /api/users/:id
+func PutUser(ctx *fiber.Ctx) error {
+	//ドキュメントIDを渡す必要がある
+	docID := ctx.Params("id")
+	if docID == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "No Document ID",
+		})
+	}
 
-// 	// convert parameter string to init
-// 	id, err := strconv.Atoi(paramID)
+	params := new(struct {
+		ID   string
+		Name string
+	})
 
-// 	// if error when parsing string to int
-// 	if err != nil {
-// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-// 			"success": false,
-// 			"message": "Cannot parse Id",
-// 		})
-// 	}
+	err := ctx.BodyParser(&params)
 
-// 	// request structure
-// 	type Request struct {
-// 		DishName *string `json:"dish_name"`
-// 	}
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Cannot parse JSON",
+		})
+	}
 
-// 	var body Request
-// 	err = c.BodyParser(&body)
+	//TODO 現状は0値が入っていてても更新されてしまう
+	if params.ID == "" || params.Name == "" {
+		return ctx.Status(400).JSON(fiber.Map{
+			"success": false,
+			"error":   "Sorry now you need to pass all data to update (;^;)",
+		})
+	}
 
-// 	if err != nil {
-// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-// 			"success": false,
-// 			"message": "Cannot parse JSON",
-// 		})
-// 	}
+	targetUser := repositories.User{ID: params.ID, Name: params.Name}
+	updatedUser, err := repositories.UpdateUser(docID, targetUser)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success":     "Updated User",
+		"updatedUser": updatedUser,
+	})
+}
 
-// 	var recipe *Recipe
-
-// 	for _, r := range recipes {
-// 		if r.DishID == id {
-// 			recipe = r
-// 			break
-// 		}
-// 	}
-
-// 	if recipe.DishID == 0 {
-// 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-// 			"success": false,
-// 			"message": "Not found",
-// 		})
-// 	}
-
-// 	if body.DishName != nil {
-// 		recipe.DishName = *body.DishName
-// 	}
-
-// 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-// 		"success": true,
-// 		"data": fiber.Map{
-// 			"recipe": recipe,
-// 		},
-// 	})
-// }
-
-// //DELETE /api/users/:id
-// func DeleteUser(ctx *fiber.Ctx) error {
-// 	// get param
-// 	paramID := c.Params("id")
-
-// 	// convert param string to int
-// 	id, err := strconv.Atoi(paramID)
-
-// 	// if parameter cannot parse
-// 	if err != nil {
-// 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-// 			"success": false,
-// 			"message": "Cannot parse id",
-// 		})
-// 	}
-
-// 	// find and delete recipe
-// 	for i, recipe := range recipes {
-// 		if recipe.DishID == id {
-
-// 			recipes = append(recipes[:i], recipes[i+1:]...)
-
-// 			return c.Status(fiber.StatusNoContent).JSON(fiber.Map{
-// 				"success": true,
-// 				"message": "Deleted Successfully",
-// 			})
-// 		}
-// 	}
-
-// 	// if recipe not found
-// 	return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-// 		"success": false,
-// 		"message": "Recipe not found",
-// 	})
-// }
+// DeleteUser is called by DELETE /api/users/:id
+func DeleteUser(ctx *fiber.Ctx) error {
+	//ドキュメントIDを渡す必要がある
+	docID := ctx.Params("id")
+	if docID == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "No Document ID",
+		})
+	}
+	err := repositories.DeleteUserByID(docID)
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "Deleted User",
+	})
+}
