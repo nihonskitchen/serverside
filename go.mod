@@ -5,6 +5,7 @@ go 1.13
 require (
 	cloud.google.com/go/firestore v1.4.0
 	firebase.google.com/go v3.13.0+incompatible
+	github.com/gofiber/fiber v1.14.6
 	github.com/gofiber/fiber/v2 v2.3.3
 	github.com/klauspost/compress v1.11.7 // indirect
 	github.com/takunyan/go-learn v0.0.0-20210114092050-d4d05aef2541 // indirect

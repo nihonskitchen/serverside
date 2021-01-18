@@ -1,13 +1,15 @@
 package routes
 
 import (
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/nihonskitchen/serverside/controllers"
 )
 
+// UserRoute set User andpoints group
 func UserRoute(route fiber.Router) {
-	log.Printf("Route")
-	route.Get("", controllers.GetUsers)
+	route.Get("", controllers.GetAllUsers)
+	route.Get("/:id", controllers.GetUserByID)
+	// route.Post("", controllers.CreateUser)
+	// route.Put("/:id", controllers.UpdateUser)
+	// route.Delete("/:id", controllers.DeleteUser)
 }
