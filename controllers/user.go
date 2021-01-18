@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+
 	fiber "github.com/gofiber/fiber/v2"
 	repositories "github.com/nihonskitchen/serverside/repositories"
 )
@@ -27,41 +29,45 @@ func GetUserByID(ctx *fiber.Ctx) error {
 	})
 }
 
-// //POST /api/users
-// func CreateUser(ctx *fiber.Ctx) error {
-// 	type Request struct {
-// 		DishName string `json:"dish_name"`
-// 	}
+// CreateUser is called by POST /api/users
+func CreateUser(ctx *fiber.Ctx) error {
+	params := new(struct {
+		ID   string
+		Name string
+	})
 
-// 	var body Request
+	err := ctx.BodyParser(&params)
 
-// 	err := ctx.BodyParser(&body)
+	// if error
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Cannot parse JSON",
+		})
+	}
 
-// 	// if error
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-// 			"success": false,
-// 			"message": "Cannot parse JSON",
-// 		})
-// 	}
+	if len(params.ID) == 0 || len(params.Name) == 0 {
+		return ctx.Status(400).JSON(fiber.Map{
+			"ok":    false,
+			"error": "Title or description not specified.",
+		})
+	}
 
-// 	// create a recipe variable
-// 	recipe := &Recipe{
-// 		DishID:   len(recipes) + 1,
-// 		DishName: body.DishName,
-// 	}
-
-// 	// append in recipes
-// 	recipes = append(recipes, recipe)
-
-// 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-// 		"success": true,
-// 		"data": fiber.Map{
-// 			"recipe": recipe,
-// 		},
-// 	})
-// }
+	targetUser := repositories.User{ID: params.ID, Name: params.Name}
+	createdUser, err := repositories.SaveUser(targetUser)
+	if err != nil {
+		fmt.Println(err)
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"ok":          true,
+		"createdUser": createdUser,
+	})
+}
 
 // func UpdateUser(ctx *fiber.Ctx) error {
 // 	// find parameter

@@ -7,10 +7,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/iterator"
-	//"google.golang.org/api/iterator"
 )
 
-//TODO 使えてない
+// User struct the same as user collection in firestore
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -46,7 +45,7 @@ func FindUserByID(ctx *fiber.Ctx) User {
 	return user
 }
 
-// FindAllUser get all users
+// FindAllUsers get all users
 func FindAllUsers() []User {
 	ctx := context.Background()
 	client := SetFirestoreClient()
@@ -73,19 +72,23 @@ func FindAllUsers() []User {
 	return users
 }
 
-// func SaveUser(ctx *fiber.Ctx) map[string]interface{} {
-// 	client := SetFirestoreClient()
-// 	defer client.Close()
+// SaveUser create new user
+func SaveUser(user User) (User, error) {
+	ctx := context.Background()
+	client := SetFirestoreClient()
+	defer client.Close()
 
-// 	// 値の取得
-// 	ref, result, err = client.Collection(collectionName).Add(ctx, map[string]interface{}{
-// 		"ID":   User.Id,
-// 		"Name": User.Name,
-// 	})
+	// Firestore登録用にUser型からMapに変換
+	// 使用するならref, resultを受け取る
+	//ref, result, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
+	_, _, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
+		"ID":   user.ID,
+		"Name": user.Name,
+	})
 
-// 	if err != nil {
-// 		fmt.Errorf("error get data: %v", err)
-// 	}
+	if err != nil {
+		fmt.Errorf("error get data: %v", err)
+	}
 
-// 	return nil
-// }
+	return user, err
+}
