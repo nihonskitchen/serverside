@@ -48,8 +48,8 @@ func CreateBarcode(ctx *fiber.Ctx) error {
 		Barcode     string
 		ProductName string
 		Description string
-		FrontPic    string
-		BackPic     string
+		//FrontPic    string
+		//BackPic     string
 	})
 
 	err := ctx.BodyParser(&params)

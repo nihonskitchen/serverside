@@ -13,8 +13,8 @@ type Barcode struct {
 	Barcode     string `json:"barcode"`
 	ProductName string `json:"product_name"`
 	Description string `json:"description"`
-	FrontPic    string `json:"front_picture"`
-	BackPic     string `json:"back_picture"`
+	//FrontPic    string `json:"front_picture"`
+	//BackPic     string `json:"back_picture"`
 }
 
 /*
@@ -51,8 +51,8 @@ func FindBarcode(ctx *fiber.Ctx, docBarcode string) Barcode {
 			Barcode:     field.Data()["barcode"].(string),
 			ProductName: field.Data()["product_name"].(string),
 			Description: field.Data()["description"].(string),
-			FrontPic:    field.Data()["front_pic"].(string),
-			BackPic:     field.Data()["back_pic"].(string),
+			//FrontPic:    field.Data()["front_pic"].(string),
+			//BackPic:     field.Data()["back_pic"].(string),
 		}
 	}
 	return barcode
@@ -112,8 +112,8 @@ func SaveBarcode(barcode Barcode) (Barcode, error) {
 		"barcode":      barcode.Barcode,
 		"product_name": barcode.ProductName,
 		"description":  barcode.Description,
-		"front_pic":    barcode.FrontPic,
-		"back_pic":     barcode.BackPic,
+		//"front_pic":    barcode.FrontPic,
+		//"back_pic":     barcode.BackPic,
 	})
 
 	if err != nil {
