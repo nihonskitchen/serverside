@@ -11,8 +11,8 @@ import (
 func BarcodeRoute(route fiber.Router) {
 	log.Printf("BarcodeRoute")
 	//route.Get("", controllers.GetAllBarcodes)
-	route.Get("/:jancode", controllers.GetBarcode)
-	route.Post("", controllers.CreateBarcode)
+	route.Get("/:jancode", controllers.GetIngredientWithBarcode)
+	route.Post("", controllers.CreateIngredient)
 	//route.Put("/:jancode", controllers.UpdateBarcode)
 	//route.Delete("/:jancode", controllers.DeleteBarcode)
 }
