@@ -11,7 +11,7 @@ import (
 type Ingredient struct {
 	IngredientID   string `json:"ingredient_id"`
 	BarcodeData    string `json:"barcode_data"`
-	IngredientName string `json:"product_name"`
+	IngredientName string `json:"ingredient_name"`
 	Description    string `json:"description"`
 	//FrontPic    string `json:"front_picture"`
 	//BackPic     string `json:"back_picture"`
@@ -95,7 +95,7 @@ func SaveIngredient(ingredient Ingredient) (Ingredient, error) {
 	defer client.Close()
 
 	// Firestore上のコレクション名
-	collectionName := "ingredient"
+	collectionName := "ingredients"
 
 	// Firestore登録用にBarcode型からMapに変換
 	// 使用するならref, resultを受け取る
