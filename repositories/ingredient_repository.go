@@ -24,7 +24,7 @@ const (
 */
 
 // FindIngredientByBarcode finds a single data of ingredient by barcode.
-func FindIngredientByBarcode(ctx *fiber.Ctx, docBarcode string) Ingredient {
+func FindIngredientByBarcode(ctx *fiber.Ctx, docBarcode string) (Ingredient, bool) {
 
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
@@ -37,10 +37,22 @@ func FindIngredientByBarcode(ctx *fiber.Ctx, docBarcode string) Ingredient {
 	collection := client.Collection(collectionName)
 	doc := collection.Doc(docBarcode)
 	field, err := doc.Get(context.Background())
+
+	var ingredient Ingredient
+	isInDB := field.Exists()
+
 	if err != nil {
 		log.Printf("error get data: %v", err)
+		ingredient = Ingredient{
+			IngredientID:   "",
+			BarcodeData:    docBarcode,
+			IngredientName: "",
+			Description:    "",
+			//FrontPic:    field.Data()["front_pic"].(string),
+			//BackPic:     field.Data()["back_pic"].(string),
+		}
+		return ingredient, isInDB
 	}
-	var ingredient Ingredient
 
 	if field != nil {
 		ingredient = Ingredient{
@@ -52,7 +64,7 @@ func FindIngredientByBarcode(ctx *fiber.Ctx, docBarcode string) Ingredient {
 			//BackPic:     field.Data()["back_pic"].(string),
 		}
 	}
-	return ingredient
+	return ingredient, isInDB
 }
 
 /*

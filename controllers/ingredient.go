@@ -32,8 +32,18 @@ func GetIngredientWithBarcode(ctx *fiber.Ctx) error {
 		})
 	}
 
-	ingredient := repositories.FindIngredientByBarcode(ctx, docBarcode)
+	ingredient, isInDB := repositories.FindIngredientByBarcode(ctx, docBarcode)
 
+	// データベースに対象バーコードが登録されていない場合
+	if !isInDB {
+		return ctx.Status(404).JSON(fiber.Map{
+			"success":      false,
+			"message":      "Document of the JANcode is NOT in Database",
+			"barcode_data": ingredient.BarcodeData,
+		})
+	}
+
+	// データベースに対象バーコードが登録されている場合
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Got the Ingredient by JANcode",
 		"data": fiber.Map{
