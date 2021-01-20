@@ -10,17 +10,17 @@ import (
 // CreateRecipe is called by POST /api/recipes
 func CreateRecipe(ctx *fiber.Ctx) error {
 	params := new(struct {
-		RecipeName   string                    `json:"recipe_name"`
-		PictureURL   string                    `json:"picture_url"`
-		Time         string                    `json:"time"`
-		Likes        string                    `json:"likes"`
-		Dislikes     string                    `json:"dislikes"`
-		Prices       string                    `json:"prices"`
-		Servings     string                    `json:"servings"`
-		IsVisible    bool                      `json:"is_visible"`
-		OwnerComment string                    `json:"owner_comment"`
-		Ingredients  []repositories.Ingredient `json:"ingredients"`
-		Steps        []string                  `json:"steps"`
+		RecipeName   string        `json:"recipe_name"`
+		PictureURL   string        `json:"picture_url"`
+		Time         string        `json:"time"`
+		Likes        string        `json:"likes"`
+		Dislikes     string        `json:"dislikes"`
+		Prices       string        `json:"prices"`
+		Servings     string        `json:"servings"`
+		IsVisible    bool          `json:"is_visible"`
+		OwnerComment string        `json:"owner_comment"`
+		Ingredients  []interface{} `json:"ingredients"`
+		Steps        []interface{} `json:"steps"`
 	})
 	err := ctx.BodyParser(&params)
 
@@ -52,7 +52,7 @@ func CreateRecipe(ctx *fiber.Ctx) error {
 		OwnerComment: params.OwnerComment,
 		Ingredients:  params.Ingredients,
 		Steps:        params.Steps}
-	createdRecipe, err := repositories.SaveRecipe(targetRecipe)
+	docID, createdRecipe, err := repositories.SaveRecipe(targetRecipe)
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Status(500).JSON(fiber.Map{
@@ -63,5 +63,17 @@ func CreateRecipe(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success":       "Created New Recipe",
 		"createdRecipe": createdRecipe,
+		"docID":         docID,
+	})
+}
+
+// GetAllRecipes is called by GET /api/recipes
+func GetAllRecipes(ctx *fiber.Ctx) error {
+	recipes := repositories.FindAllRecipes()
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "Got All Recipes",
+		"data": fiber.Map{
+			"recipes": recipes,
+		},
 	})
 }
