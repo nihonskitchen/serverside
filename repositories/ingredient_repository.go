@@ -95,7 +95,7 @@ func SaveIngredient(ingredient Ingredient) (Ingredient, error) {
 	defer client.Close()
 
 	// Firestore上のコレクション名
-	collectionName := "ingredient"
+	collectionName := "ingredients"
 
 	// Firestore登録用にBarcode型からMapに変換
 	// 使用するならref, resultを受け取る

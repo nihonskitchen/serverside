@@ -31,6 +31,7 @@ func GetIngredientWithBarcode(ctx *fiber.Ctx) error {
 			"message": "No Document of the JANcode",
 		})
 	}
+
 	ingredient := repositories.FindIngredientByBarcode(ctx, docBarcode)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
