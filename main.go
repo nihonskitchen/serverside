@@ -60,7 +60,8 @@ func setupRoutes(app *fiber.App) {
 		})
 	})
 
-	// connect todo routes
+	// connect routes
 	routes.UserRoute(api.Group("/users"))
 	routes.BarcodeRoute(api.Group("/barcode"))
+	routes.RecipeRoute(api.Group("/recipes"))
 }

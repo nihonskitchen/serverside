@@ -16,7 +16,7 @@ type User struct {
 }
 
 const (
-	collectionName string = "users"
+	usersCollectionName string = "users"
 )
 
 // FindUserByID find user by id
@@ -26,7 +26,7 @@ func FindUserByID(ctx *fiber.Ctx, docID string) User {
 	defer client.Close()
 
 	// 値の取得
-	collection := client.Collection(collectionName)
+	collection := client.Collection(usersCollectionName)
 	doc := collection.Doc(docID)
 	field, err := doc.Get(context.Background())
 	if err != nil {
@@ -51,7 +51,7 @@ func FindAllUsers() []User {
 	defer client.Close()
 
 	var users []User
-	iter := client.Collection(collectionName).Documents(ctx)
+	iter := client.Collection(usersCollectionName).Documents(ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -78,8 +78,8 @@ func SaveUser(user User) (User, error) {
 
 	// Firestore登録用にUser型からMapに変換
 	// 使用するならref, resultを受け取る
-	//ref, result, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
-	_, _, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
+	//ref, result, err := client.Collection(usersCollectionName).Add(ctx, map[string]interface{}{
+	_, _, err := client.Collection(usersCollectionName).Add(ctx, map[string]interface{}{
 		"ID":   user.ID,
 		"Name": user.Name,
 	})
@@ -97,7 +97,7 @@ func UpdateUser(docID string, user User) (User, error) {
 	client := SetFirestoreClient()
 	defer client.Close()
 
-	_, err := client.Collection(collectionName).Doc(docID).Set(ctx, user)
+	_, err := client.Collection(usersCollectionName).Doc(docID).Set(ctx, user)
 
 	if err != nil {
 		fmt.Errorf("error get data: %v", err)
@@ -114,7 +114,7 @@ func DeleteUserByID(docID string) error {
 	defer client.Close()
 
 	// 値の取得
-	_, err := client.Collection(collectionName).Doc(docID).Delete(ctx)
+	_, err := client.Collection(usersCollectionName).Doc(docID).Delete(ctx)
 	if err != nil {
 		fmt.Errorf("error get data: %v", err)
 	}
