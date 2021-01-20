@@ -10,6 +10,7 @@ import (
 // CreateRecipe is called by POST /api/recipes
 func CreateRecipe(ctx *fiber.Ctx) error {
 	params := new(struct {
+		UserID       string        `json:"user_id"`
 		RecipeName   string        `json:"recipe_name"`
 		PictureURL   string        `json:"picture_url"`
 		Time         string        `json:"time"`
@@ -41,6 +42,7 @@ func CreateRecipe(ctx *fiber.Ctx) error {
 	// }
 
 	targetRecipe := repositories.Recipe{
+		UserID:       params.UserID,
 		RecipeName:   params.RecipeName,
 		PictureURL:   params.PictureURL,
 		Time:         params.Time,

@@ -11,6 +11,7 @@ import (
 
 // User struct the same as user collection in firestore
 type Recipe struct {
+	UserID       string        `json:"user_id"`
 	RecipeName   string        `json:"recipe_name"`
 	PictureURL   string        `json:"picture_url"`
 	Time         string        `json:"time"`
@@ -49,6 +50,7 @@ func SaveRecipe(recipe Recipe) (string, Recipe, error) {
 	// 使用するならref, resultを受け取る
 	//ref, result, err := client.Collection(recipesCollectionName).Add(ctx, map[string]interface{}{
 	ref, _, err := client.Collection(recipesCollectionName).Add(ctx, map[string]interface{}{
+		"UserID":       recipe.UserID,
 		"RecipeName":   recipe.RecipeName,
 		"PictureURL":   recipe.PictureURL,
 		"Time":         recipe.Time,
@@ -90,6 +92,7 @@ func FindAllRecipes() []RecipeWithDocID {
 		recipe := RecipeWithDocID{
 			DocID: doc.Ref.ID,
 			Recipe: Recipe{
+				UserID:       doc.Data()["UserID"].(string),
 				RecipeName:   doc.Data()["RecipeName"].(string),
 				PictureURL:   doc.Data()["PictureURL"].(string),
 				Time:         doc.Data()["Time"].(string),
@@ -130,6 +133,7 @@ func FindRecipeByID(ctx *fiber.Ctx, docID string) Recipe {
 	//TODO 現状ないものを取得した場合落ちる
 	if docRef != nil {
 		recipe = Recipe{
+			UserID:       docRef.Data()["UserID"].(string),
 			RecipeName:   docRef.Data()["RecipeName"].(string),
 			PictureURL:   docRef.Data()["PictureURL"].(string),
 			Time:         docRef.Data()["Time"].(string),
