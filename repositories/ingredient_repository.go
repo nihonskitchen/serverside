@@ -7,34 +7,31 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Barcode is the type of barcodes.
-type Barcode struct {
-	ID          string `json:"id"`
-	Barcode     string `json:"barcode"`
-	ProductName string `json:"product_name"`
-	Description string `json:"description"`
-	FrontPic    string `json:"front_picture"`
-	BackPic     string `json:"back_picture"`
+// Ingredient is the type of ingredients.
+type Ingredient struct {
+	IngredientID   string `json:"ingredient_id"`
+	BarcodeData    string `json:"barcode_data"`
+	IngredientName string `json:"product_name"`
+	Description    string `json:"description"`
+	//FrontPic    string `json:"front_picture"`
+	//BackPic     string `json:"back_picture"`
 }
 
 /*
 const (
-	collectionName string = "barcode"
+	collectionName string = "ingredient"
 )
 */
 
-// FindBarcode find a single data of product by JANcode.
-func FindBarcode(ctx *fiber.Ctx, docBarcode string) Barcode {
+// FindIngredientByBarcode finds a single data of ingredient by barcode.
+func FindIngredientByBarcode(ctx *fiber.Ctx, docBarcode string) Ingredient {
 
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
 	defer client.Close()
 
-	// ドキュメント名（jancode）を渡す
-	// jancode := ctx.Params("jancode")
-
 	// Firestore上のコレクション名
-	collectionName := "barcode"
+	collectionName := "ingredients"
 
 	// 値の取得
 	collection := client.Collection(collectionName)
@@ -43,19 +40,19 @@ func FindBarcode(ctx *fiber.Ctx, docBarcode string) Barcode {
 	if err != nil {
 		log.Printf("error get data: %v", err)
 	}
-	var barcode Barcode
+	var ingredient Ingredient
 
 	if field != nil {
-		barcode = Barcode{
-			ID:          field.Data()["id"].(string),
-			Barcode:     field.Data()["barcode"].(string),
-			ProductName: field.Data()["product_name"].(string),
-			Description: field.Data()["description"].(string),
-			FrontPic:    field.Data()["front_pic"].(string),
-			BackPic:     field.Data()["back_pic"].(string),
+		ingredient = Ingredient{
+			IngredientID:   field.Data()["ingredient_id"].(string),
+			BarcodeData:    field.Data()["barcode_data"].(string),
+			IngredientName: field.Data()["ingredient_name"].(string),
+			Description:    field.Data()["description"].(string),
+			//FrontPic:    field.Data()["front_pic"].(string),
+			//BackPic:     field.Data()["back_pic"].(string),
 		}
 	}
-	return barcode
+	return ingredient
 }
 
 /*
@@ -91,14 +88,14 @@ func FindAllBarcodes() []Barcode {
 }
 */
 
-// SaveBarcode create new user
-func SaveBarcode(barcode Barcode) (Barcode, error) {
+// SaveIngredient create new user
+func SaveIngredient(ingredient Ingredient) (Ingredient, error) {
 	ctx := context.Background()
 	client := SetFirestoreClient()
 	defer client.Close()
 
 	// Firestore上のコレクション名
-	collectionName := "barcode"
+	collectionName := "ingredient"
 
 	// Firestore登録用にBarcode型からMapに変換
 	// 使用するならref, resultを受け取る
@@ -107,18 +104,18 @@ func SaveBarcode(barcode Barcode) (Barcode, error) {
 
 	//ref, result, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
 	//_, _, err := client.Collection(collectionName).Add(ctx, map[string]interface{}{
-	_, err := client.Collection(collectionName).Doc(barcode.Barcode).Set(ctx, map[string]interface{}{
-		"id":           barcode.ID,
-		"barcode":      barcode.Barcode,
-		"product_name": barcode.ProductName,
-		"description":  barcode.Description,
-		"front_pic":    barcode.FrontPic,
-		"back_pic":     barcode.BackPic,
+	_, err := client.Collection(collectionName).Doc(ingredient.BarcodeData).Set(ctx, map[string]interface{}{
+		"ingredient_id":   ingredient.IngredientID,
+		"barcode_data":    ingredient.BarcodeData,
+		"ingredient_name": ingredient.IngredientName,
+		"description":     ingredient.Description,
+		//"front_pic":    ingredient.FrontPic,
+		//"back_pic":     ingredient.BackPic,
 	})
 
 	if err != nil {
 		log.Printf("error get data: %v", err)
 	}
 
-	return barcode, err
+	return ingredient, err
 }
