@@ -80,12 +80,24 @@ func GetAllRecipes(ctx *fiber.Ctx) error {
 	})
 }
 
-// GetAllRecipesByUID is called by GET /api/recipes/:uid
+// GetAllRecipesByUID is called by GET /api/recipes/uid/:uid
 func GetAllRecipesByUID(ctx *fiber.Ctx) error {
 	UID := ctx.Params("uid")
 	recipes := repositories.FindAllRecipesByUID(UID)
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": "Got All Recipes",
+		"success": "Got All Recipes By UID",
+		"data": fiber.Map{
+			"recipes": recipes,
+		},
+	})
+}
+
+// GetAllRecipesByName is called by GET /api/recipes/name/:name
+func GetAllRecipesByName(ctx *fiber.Ctx) error {
+	Name := ctx.Params("name")
+	recipes := repositories.FindAllRecipesByName(Name)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "Got All Recipes By Name",
 		"data": fiber.Map{
 			"recipes": recipes,
 		},
