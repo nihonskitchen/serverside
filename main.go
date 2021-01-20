@@ -5,6 +5,7 @@ import (
 	"os"
 
 	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	repositories "github.com/nihonskitchen/serverside/repositories"
@@ -17,6 +18,11 @@ func main() {
 
 	// set Server things
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "https://nihonskitchen.web.app",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	app.Use(logger.New())
 	setupRoutes(app)
 
