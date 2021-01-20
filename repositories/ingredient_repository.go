@@ -31,7 +31,7 @@ func FindIngredientByBarcode(ctx *fiber.Ctx, docBarcode string) Ingredient {
 	defer client.Close()
 
 	// Firestore上のコレクション名
-	collectionName := "ingredient"
+	collectionName := "ingredients"
 
 	// 値の取得
 	collection := client.Collection(collectionName)
