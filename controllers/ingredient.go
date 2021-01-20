@@ -8,20 +8,20 @@ import (
 )
 
 /*
-// GetAllBarcodes is called by GET /api/barcode
-func GetAllBarcodes(ctx *fiber.Ctx) error {
-	barcodes := repositories.FindAllBarcodes()
+// GetAllIngredients is called by GET /api/barcode
+func GetAllIngredients(ctx *fiber.Ctx) error {
+	ingredients := repositories.FindAllIngredients()
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "成功やで",
 		"data": fiber.Map{
-			"barcodes": barcodes,
+			"ingredients": ingredients,
 		},
 	})
 }
 */
 
-//GetBarcode is called by GET /api/barcode/:jancode
-func GetBarcode(ctx *fiber.Ctx) error {
+//GetIngredientWithBarcode is called by GET /api/barcode/:jancode
+func GetIngredientWithBarcode(ctx *fiber.Ctx) error {
 	// ドキュメント名を渡す
 	docBarcode := ctx.Params("jancode")
 
@@ -31,23 +31,23 @@ func GetBarcode(ctx *fiber.Ctx) error {
 			"message": "No Document of the JANcode",
 		})
 	}
-	barcode := repositories.FindBarcode(ctx, docBarcode)
+	ingredient := repositories.FindIngredientByBarcode(ctx, docBarcode)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": "Got product by JANcode",
+		"success": "Got the Ingredient by JANcode",
 		"data": fiber.Map{
-			"barcode": barcode,
+			"ingredient": ingredient,
 		},
 	})
 }
 
-// CreateBarcode is called by POST /api/barcode
-func CreateBarcode(ctx *fiber.Ctx) error {
+// CreateIngredient is called by POST /api/barcode
+func CreateIngredient(ctx *fiber.Ctx) error {
 	params := new(struct {
-		ID          string
-		Barcode     string
-		ProductName string
-		Description string
+		IngredientID   string
+		BarcodeData    string
+		IngredientName string
+		Description    string
 		//FrontPic    string
 		//BackPic     string
 	})
@@ -63,15 +63,15 @@ func CreateBarcode(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if len(params.Barcode) == 0 || len(params.ProductName) == 0 {
+	if len(params.BarcodeData) == 0 || len(params.IngredientName) == 0 {
 		return ctx.Status(400).JSON(fiber.Map{
 			"ok":    false,
-			"error": "Barcode or ProductName not specified.",
+			"error": "BarcodeData or IngredientName not specified.",
 		})
 	}
 
-	targetBarcode := repositories.Barcode{Barcode: params.Barcode, ProductName: params.ProductName}
-	createdBarcode, err := repositories.SaveBarcode(targetBarcode)
+	targetIngredient := repositories.Ingredient{BarcodeData: params.BarcodeData, IngredientName: params.IngredientName, Description: params.Description}
+	createdIngredient, err := repositories.SaveIngredient(targetIngredient)
 	if err != nil {
 		fmt.Println(err)
 		return ctx.Status(500).JSON(fiber.Map{
@@ -80,7 +80,7 @@ func CreateBarcode(ctx *fiber.Ctx) error {
 		})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success":        "Created New Product Data with Barcode",
-		"createdBarcode": createdBarcode,
+		"success":           "Created New Ingredient Data with Barcode",
+		"createdIngredient": createdIngredient,
 	})
 }
