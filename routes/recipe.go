@@ -8,7 +8,7 @@ import (
 // UserRoute set User andpoints group
 func RecipeRoute(route fiber.Router) {
 	route.Get("", controllers.GetAllRecipes)
-	// route.Get("/:id", controllers.GetUserByID)
+	route.Get("/:id", controllers.GetRecipeByID)
 	route.Post("", controllers.CreateRecipe)
 	// route.Put("/:id", controllers.PutUser)
 	// route.Delete("/:id", controllers.DeleteUser)

@@ -61,9 +61,9 @@ func CreateRecipe(ctx *fiber.Ctx) error {
 		})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success":       "Created New Recipe",
-		"createdRecipe": createdRecipe,
-		"docID":         docID,
+		"success":        "Created New Recipe",
+		"created_recipe": createdRecipe,
+		"doc_id":         docID,
 	})
 }
 
@@ -74,6 +74,25 @@ func GetAllRecipes(ctx *fiber.Ctx) error {
 		"success": "Got All Recipes",
 		"data": fiber.Map{
 			"recipes": recipes,
+		},
+	})
+}
+
+// GetRecipeByID is called by GET /api/recipes/:id
+func GetRecipeByID(ctx *fiber.Ctx) error {
+	//ドキュメントIDを渡す必要がある
+	docID := ctx.Params("id")
+	if docID == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "No Document ID",
+		})
+	}
+	recipe := repositories.FindRecipeByID(ctx, docID)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "Got recipe by ID",
+		"data": fiber.Map{
+			"recipe": recipe,
 		},
 	})
 }

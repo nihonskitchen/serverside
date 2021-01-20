@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/iterator"
 )
 
@@ -21,6 +22,11 @@ type Recipe struct {
 	OwnerComment string        `json:"owner_comment"`
 	Ingredients  []interface{} `json:"ingredients"`
 	Steps        []interface{} `json:"steps"`
+}
+
+type RecipeWithDocID struct {
+	DocID string `json:"doc_id"`
+	Recipe
 }
 
 // type Material struct {
@@ -64,13 +70,13 @@ func SaveRecipe(recipe Recipe) (string, Recipe, error) {
 }
 
 // FindAllRecipes get all recipes
-func FindAllRecipes() []Recipe {
+func FindAllRecipes() []RecipeWithDocID {
 	ctx := context.Background()
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
 	defer client.Close()
 
-	var recipes []Recipe
+	var recipes []RecipeWithDocID
 	iter := client.Collection(recipesCollectionName).Documents(ctx)
 	for {
 		doc, err := iter.Next()
@@ -81,21 +87,61 @@ func FindAllRecipes() []Recipe {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
 
-		recipe := Recipe{
-			RecipeName:   doc.Data()["RecipeName"].(string),
-			PictureURL:   doc.Data()["PictureURL"].(string),
-			Time:         doc.Data()["Time"].(string),
-			Likes:        doc.Data()["Likes"].(string),
-			Dislikes:     doc.Data()["Dislikes"].(string),
-			Prices:       doc.Data()["Prices"].(string),
-			Servings:     doc.Data()["Servings"].(string),
-			IsVisible:    doc.Data()["IsVisible"].(bool),
-			OwnerComment: doc.Data()["OwnerComment"].(string),
-			Ingredients:  doc.Data()["Ingredients"].([]interface{}),
-			Steps:        doc.Data()["Steps"].([]interface{}),
+		recipe := RecipeWithDocID{
+			DocID: doc.Ref.ID,
+			Recipe: Recipe{
+				RecipeName:   doc.Data()["RecipeName"].(string),
+				PictureURL:   doc.Data()["PictureURL"].(string),
+				Time:         doc.Data()["Time"].(string),
+				Likes:        doc.Data()["Likes"].(string),
+				Dislikes:     doc.Data()["Dislikes"].(string),
+				Prices:       doc.Data()["Prices"].(string),
+				Servings:     doc.Data()["Servings"].(string),
+				IsVisible:    doc.Data()["IsVisible"].(bool),
+				OwnerComment: doc.Data()["OwnerComment"].(string),
+				Ingredients:  doc.Data()["Ingredients"].([]interface{}),
+				// Ingredients:  doc.Data()["Ingredients"].([]Material{
+				// 	Name:doc.Data()["Ingredients"]["Name"],
+				// 	Amount:doc.Data()["Ingredients"]["Amount"],
+				// 	Unit:doc.Data()["Ingredients"]["Unit"],
+				// }),
+				Steps: doc.Data()["Steps"].([]interface{}),
+			},
 		}
 		recipes = append(recipes, recipe)
 	}
 
 	return recipes
+}
+
+// FindRecipeByID find recipe by id
+func FindRecipeByID(ctx *fiber.Ctx, docID string) Recipe {
+	client := SetFirestoreClient()
+	defer client.Close()
+
+	// 値の取得
+	collection := client.Collection(recipesCollectionName)
+	doc := collection.Doc(docID)
+	docRef, err := doc.Get(context.Background())
+	if err != nil {
+		fmt.Errorf("error get data: %v", err)
+	}
+	var recipe Recipe
+	//TODO 現状ないものを取得した場合落ちる
+	if docRef != nil {
+		recipe = Recipe{
+			RecipeName:   docRef.Data()["RecipeName"].(string),
+			PictureURL:   docRef.Data()["PictureURL"].(string),
+			Time:         docRef.Data()["Time"].(string),
+			Likes:        docRef.Data()["Likes"].(string),
+			Dislikes:     docRef.Data()["Dislikes"].(string),
+			Prices:       docRef.Data()["Prices"].(string),
+			Servings:     docRef.Data()["Servings"].(string),
+			IsVisible:    docRef.Data()["IsVisible"].(bool),
+			OwnerComment: docRef.Data()["OwnerComment"].(string),
+			Ingredients:  docRef.Data()["Ingredients"].([]interface{}),
+			Steps:        docRef.Data()["Steps"].([]interface{}),
+		}
+	}
+	return recipe
 }
