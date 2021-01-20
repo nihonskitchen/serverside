@@ -80,6 +80,18 @@ func GetAllRecipes(ctx *fiber.Ctx) error {
 	})
 }
 
+// GetAllRecipesByUID is called by GET /api/recipes/:uid
+func GetAllRecipesByUID(ctx *fiber.Ctx) error {
+	UID := ctx.Params("uid")
+	recipes := repositories.FindAllRecipesByUID(UID)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "Got All Recipes",
+		"data": fiber.Map{
+			"recipes": recipes,
+		},
+	})
+}
+
 // GetRecipeByID is called by GET /api/recipes/:id
 func GetRecipeByID(ctx *fiber.Ctx) error {
 	//ドキュメントIDを渡す必要がある

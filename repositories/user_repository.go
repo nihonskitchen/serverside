@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"log"
 
+	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/iterator"
 )
 
 // User struct the same as user collection in firestore
 type User struct {
-	ID   string `json:"id"`
+	UID  string `json:"uid"`
 	Name string `json:"name"`
 }
 
@@ -36,7 +37,7 @@ func FindUserByID(ctx *fiber.Ctx, docID string) User {
 	//TODO 現状ないものを取得した場合落ちる
 	if field != nil {
 		user = User{
-			ID:   field.Data()["ID"].(string),
+			UID:  field.Data()["UID"].(string),
 			Name: field.Data()["Name"].(string),
 		}
 	}
@@ -61,7 +62,7 @@ func FindAllUsers() []User {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
 		user := User{
-			ID:   doc.Data()["ID"].(string),
+			UID:  doc.Data()["UID"].(string),
 			Name: doc.Data()["Name"].(string),
 		}
 		users = append(users, user)
@@ -79,10 +80,10 @@ func SaveUser(user User) (User, error) {
 	// Firestore登録用にUser型からMapに変換
 	// 使用するならref, resultを受け取る
 	//ref, result, err := client.Collection(usersCollectionName).Add(ctx, map[string]interface{}{
-	_, _, err := client.Collection(usersCollectionName).Add(ctx, map[string]interface{}{
-		"ID":   user.ID,
+	_, err := client.Collection(usersCollectionName).Doc(user.UID).Set(ctx, map[string]interface{}{
+		"UID":  user.UID,
 		"Name": user.Name,
-	})
+	}, firestore.MergeAll)
 
 	if err != nil {
 		fmt.Errorf("error get data: %v", err)

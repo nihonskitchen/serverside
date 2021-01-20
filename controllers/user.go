@@ -40,8 +40,8 @@ func GetUserByID(ctx *fiber.Ctx) error {
 // CreateUser is called by POST /api/users
 func CreateUser(ctx *fiber.Ctx) error {
 	params := new(struct {
-		ID   string
-		Name string
+		UID  string `json:"uid"`
+		Name string `json:"name"`
 	})
 
 	err := ctx.BodyParser(&params)
@@ -55,14 +55,14 @@ func CreateUser(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if len(params.ID) == 0 || len(params.Name) == 0 {
+	if len(params.UID) == 0 || len(params.Name) == 0 {
 		return ctx.Status(400).JSON(fiber.Map{
 			"success": false,
 			"error":   "ID or name not specified.",
 		})
 	}
 
-	targetUser := repositories.User{ID: params.ID, Name: params.Name}
+	targetUser := repositories.User{UID: params.UID, Name: params.Name}
 	createdUser, err := repositories.SaveUser(targetUser)
 	if err != nil {
 		fmt.Println(err)
@@ -89,7 +89,7 @@ func PutUser(ctx *fiber.Ctx) error {
 	}
 
 	params := new(struct {
-		ID   string
+		UID  string
 		Name string
 	})
 
@@ -104,14 +104,14 @@ func PutUser(ctx *fiber.Ctx) error {
 	}
 
 	//TODO 現状は0値が入っていてても更新されてしまう
-	if params.ID == "" || params.Name == "" {
+	if params.UID == "" || params.Name == "" {
 		return ctx.Status(400).JSON(fiber.Map{
 			"success": false,
 			"error":   "Sorry now you need to pass all data to update (;^;)",
 		})
 	}
 
-	targetUser := repositories.User{ID: params.ID, Name: params.Name}
+	targetUser := repositories.User{UID: params.UID, Name: params.Name}
 	updatedUser, err := repositories.UpdateUser(docID, targetUser)
 	if err != nil {
 		fmt.Println(err)
