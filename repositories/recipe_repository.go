@@ -163,6 +163,53 @@ func FindAllRecipesByUID(UID string) []RecipeWithDocID {
 	return recipes
 }
 
+// FindAllRecipesByName get all recipes by name
+func FindAllRecipesByName(Name string) []RecipeWithDocID {
+	ctx := context.Background()
+	client := SetFirestoreClient()
+	// 必ずこの関数の最後でCLOSEするようにする
+	defer client.Close()
+
+	var recipes []RecipeWithDocID
+	iter := client.Collection(recipesCollectionName).Where("RecipeName", "==", Name).Documents(ctx)
+	//iter := client.Collection(recipesCollectionName).OrderBy("RecipeName", firestore.Desc).StartAt(Name).EndAt(Name + "\uf8ff").Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+
+		recipe := RecipeWithDocID{
+			DocID: doc.Ref.ID,
+			Recipe: Recipe{
+				UserID:       doc.Data()["UserID"].(string),
+				RecipeName:   doc.Data()["RecipeName"].(string),
+				PictureURL:   doc.Data()["PictureURL"].(string),
+				Time:         doc.Data()["Time"].(string),
+				Likes:        doc.Data()["Likes"].(string),
+				Dislikes:     doc.Data()["Dislikes"].(string),
+				Prices:       doc.Data()["Prices"].(string),
+				Servings:     doc.Data()["Servings"].(string),
+				IsVisible:    doc.Data()["IsVisible"].(bool),
+				OwnerComment: doc.Data()["OwnerComment"].(string),
+				Ingredients:  doc.Data()["Ingredients"].([]interface{}),
+				// Ingredients:  doc.Data()["Ingredients"].([]Material{
+				// 	Name:doc.Data()["Ingredients"]["Name"],
+				// 	Amount:doc.Data()["Ingredients"]["Amount"],
+				// 	Unit:doc.Data()["Ingredients"]["Unit"],
+				// }),
+				Steps: doc.Data()["Steps"].([]interface{}),
+			},
+		}
+		recipes = append(recipes, recipe)
+	}
+
+	return recipes
+}
+
 // FindRecipeByID find recipe by id
 func FindRecipeByID(ctx *fiber.Ctx, docID string) Recipe {
 	client := SetFirestoreClient()
