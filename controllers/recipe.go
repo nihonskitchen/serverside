@@ -71,7 +71,22 @@ func CreateRecipe(ctx *fiber.Ctx) error {
 
 // GetAllRecipes is called by GET /api/recipes
 func GetAllRecipes(ctx *fiber.Ctx) error {
-	recipes := repositories.FindAllRecipes()
+	recipes, err := repositories.FindAllRecipes()
+
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+
+	// データベースにレシピが登録されていない場合
+	if recipes == nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"success": false,
+			"message": "No recipe data in Database",
+		})
+	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Got All Recipes",
 		"data": fiber.Map{
@@ -83,7 +98,22 @@ func GetAllRecipes(ctx *fiber.Ctx) error {
 // GetAllRecipesByUID is called by GET /api/recipes/uid/:uid
 func GetAllRecipesByUID(ctx *fiber.Ctx) error {
 	UID := ctx.Params("uid")
-	recipes := repositories.FindAllRecipesByUID(UID)
+	recipes, err := repositories.FindAllRecipesByUID(UID)
+
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+
+	// データベースにレシピが登録されていない場合
+	if recipes == nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"success": false,
+			"message": "No recipe data in Database",
+		})
+	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Got All Recipes By UID",
 		"data": fiber.Map{
@@ -95,7 +125,22 @@ func GetAllRecipesByUID(ctx *fiber.Ctx) error {
 // GetAllRecipesByName is called by GET /api/recipes/name/:name
 func GetAllRecipesByName(ctx *fiber.Ctx) error {
 	Name := ctx.Params("name")
-	recipes := repositories.FindAllRecipesByName(Name)
+	recipes, err := repositories.FindAllRecipesByName(Name)
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+
+	// データベースにレシピが登録されていない場合
+	if recipes == nil {
+		return ctx.Status(404).JSON(fiber.Map{
+			"success": false,
+			"message": "No recipe data in Database",
+		})
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Got All Recipes By Name",
 		"data": fiber.Map{
@@ -114,7 +159,23 @@ func GetRecipeByID(ctx *fiber.Ctx) error {
 			"message": "No Document ID",
 		})
 	}
-	recipe := repositories.FindRecipeByID(ctx, docID)
+	recipe, isExist, err := repositories.FindRecipeByID(ctx, docID)
+
+	// データベースにレシピが登録されていない場合
+	if !isExist {
+		return ctx.Status(404).JSON(fiber.Map{
+			"success": false,
+			"message": "No recipe data in Database",
+		})
+	}
+
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": err,
+		})
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Got recipe by ID",
 		"data": fiber.Map{
