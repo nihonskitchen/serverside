@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 
+	"cloud.google.com/go/firestore"
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/api/iterator"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 // User struct the same as user collection in firestore
@@ -40,7 +43,7 @@ const (
 	recipesCollectionName string = "recipes"
 )
 
-// SaveUser create new user
+// SaveRecipe create new recipe
 func SaveRecipe(recipe Recipe) (string, Recipe, error) {
 	ctx := context.Background()
 	client := SetFirestoreClient()
@@ -62,6 +65,9 @@ func SaveRecipe(recipe Recipe) (string, Recipe, error) {
 		"OwnerComment": recipe.OwnerComment,
 		"Ingredients":  recipe.Ingredients,
 		"Steps":        recipe.Steps,
+		"CreatedAt":    firestore.ServerTimestamp,
+		"UpdatedAt":    firestore.ServerTimestamp,
+		"DeletedAt":    nil,
 	})
 
 	if err != nil {
@@ -72,14 +78,14 @@ func SaveRecipe(recipe Recipe) (string, Recipe, error) {
 }
 
 // FindAllRecipes get all recipes
-func FindAllRecipes() []RecipeWithDocID {
+func FindAllRecipes() ([]RecipeWithDocID, error) {
 	ctx := context.Background()
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
 	defer client.Close()
 
 	var recipes []RecipeWithDocID
-	iter := client.Collection(recipesCollectionName).Documents(ctx)
+	iter := client.Collection(recipesCollectionName).OrderBy("CreatedAt", firestore.Desc).Documents(ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -87,6 +93,10 @@ func FindAllRecipes() []RecipeWithDocID {
 		}
 		if err != nil {
 			log.Fatalf("Failed to iterate: %v", err)
+			return nil, err
+		}
+		if !doc.Exists() {
+			return nil, nil
 		}
 
 		recipe := RecipeWithDocID{
@@ -114,11 +124,11 @@ func FindAllRecipes() []RecipeWithDocID {
 		recipes = append(recipes, recipe)
 	}
 
-	return recipes
+	return recipes, nil
 }
 
 // FindAllRecipesByUID get all recipes by uid
-func FindAllRecipesByUID(UID string) []RecipeWithDocID {
+func FindAllRecipesByUID(UID string) ([]RecipeWithDocID, error) {
 	ctx := context.Background()
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
@@ -133,6 +143,10 @@ func FindAllRecipesByUID(UID string) []RecipeWithDocID {
 		}
 		if err != nil {
 			log.Fatalf("Failed to iterate: %v", err)
+			return nil, err
+		}
+		if !doc.Exists() {
+			return nil, nil
 		}
 
 		recipe := RecipeWithDocID{
@@ -160,11 +174,11 @@ func FindAllRecipesByUID(UID string) []RecipeWithDocID {
 		recipes = append(recipes, recipe)
 	}
 
-	return recipes
+	return recipes, nil
 }
 
 // FindAllRecipesByName get all recipes by name
-func FindAllRecipesByName(Name string) []RecipeWithDocID {
+func FindAllRecipesByName(Name string) ([]RecipeWithDocID, error) {
 	ctx := context.Background()
 	client := SetFirestoreClient()
 	// 必ずこの関数の最後でCLOSEするようにする
@@ -180,6 +194,10 @@ func FindAllRecipesByName(Name string) []RecipeWithDocID {
 		}
 		if err != nil {
 			log.Fatalf("Failed to iterate: %v", err)
+			return nil, err
+		}
+		if !doc.Exists() {
+			return nil, nil
 		}
 
 		recipe := RecipeWithDocID{
@@ -207,20 +225,24 @@ func FindAllRecipesByName(Name string) []RecipeWithDocID {
 		recipes = append(recipes, recipe)
 	}
 
-	return recipes
+	return recipes, nil
 }
 
 // FindRecipeByID find recipe by id
-func FindRecipeByID(ctx *fiber.Ctx, docID string) Recipe {
+func FindRecipeByID(ctx *fiber.Ctx, docID string) (Recipe, bool, error) {
 	client := SetFirestoreClient()
 	defer client.Close()
 
 	// 値の取得
 	collection := client.Collection(recipesCollectionName)
-	doc := collection.Doc(docID)
-	docRef, err := doc.Get(context.Background())
+	docRef, err := collection.Doc(docID).Get(context.Background())
+	// Not Foundの取得
+	if grpc.Code(err) == codes.NotFound {
+		return Recipe{}, false, err
+	}
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Fatalf("Error happened: %v", err)
+		return Recipe{}, false, err
 	}
 	var recipe Recipe
 	//TODO 現状ないものを取得した場合落ちる
@@ -240,5 +262,5 @@ func FindRecipeByID(ctx *fiber.Ctx, docID string) Recipe {
 			Steps:        docRef.Data()["Steps"].([]interface{}),
 		}
 	}
-	return recipe
+	return recipe, true, nil
 }

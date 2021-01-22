@@ -19,5 +19,5 @@ require (
 	golang.org/x/tools v0.0.0-20210115202250-e0d201561e39 // indirect
 	google.golang.org/api v0.36.0
 	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f // indirect
-	google.golang.org/grpc v1.35.0 // indirect
+	google.golang.org/grpc v1.35.0
 )
