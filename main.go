@@ -18,8 +18,9 @@ func main() {
 
 	// set Server things
 	app := fiber.New()
+	//app.Use(cors.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "https://nihonskitchen.web.app",
+		AllowOrigins: "https://nihonskitchen.web.app, https://nihonskitchen-prod.web.app/",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
