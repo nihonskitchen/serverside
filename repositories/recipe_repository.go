@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// User struct the same as user collection in firestore
+// Recipe struct the same as recipes collection in firestore
 type Recipe struct {
 	UserID       string        `json:"user_id"`
 	RecipeName   string        `json:"recipe_name"`
@@ -28,6 +28,7 @@ type Recipe struct {
 	Steps        []interface{} `json:"steps"`
 }
 
+// RecipeWithDocID struct is Recipe and its firestore documentID
 type RecipeWithDocID struct {
 	DocID string `json:"doc_id"`
 	Recipe
