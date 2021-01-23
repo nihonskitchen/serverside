@@ -12,4 +12,5 @@ func UserRoute(route fiber.Router) {
 	route.Post("", controllers.CreateUser)
 	route.Put("/:id", controllers.PutUser)
 	route.Delete("/:id", controllers.DeleteUser)
+	route.Get("/:id/favorites", controllers.GetFavoritesByUID)
 }

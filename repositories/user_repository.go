@@ -10,10 +10,16 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-// User struct the same as user collection in firestore
+// User struct the same as users collection in firestore without Favorites
 type User struct {
 	UID  string `json:"uid"`
 	Name string `json:"name"`
+}
+
+// UserWithFavorites struct the same as users collection in firestore
+type UserWithFavorites struct {
+	User
+	Favorites []interface{} `json:"favorites"`
 }
 
 const (
@@ -32,13 +38,15 @@ func FindUserByID(ctx *fiber.Ctx, docID string) User {
 	field, err := doc.Get(context.Background())
 	if err != nil {
 		fmt.Errorf("error get data: %v", err)
+		//TODO 現状ないものを取得した場合落ちる
 	}
 	var user User
-	//TODO 現状ないものを取得した場合落ちる
+
 	if field != nil {
 		user = User{
 			UID:  field.Data()["UID"].(string),
 			Name: field.Data()["Name"].(string),
+			//Favorites: field.Data()["Favorite"].([]interface{}),
 		}
 	}
 	return user
@@ -120,4 +128,32 @@ func DeleteUserByID(docID string) error {
 		fmt.Errorf("error get data: %v", err)
 	}
 	return nil
+}
+
+// FindFavoritesByUID find user by id
+func FindFavoritesByUID(ctx *fiber.Ctx, docID string) UserWithFavorites {
+	client := SetFirestoreClient()
+	// 必ずこの関数の最後でCLOSEするようにする
+	defer client.Close()
+
+	// 値の取得
+	collection := client.Collection(usersCollectionName)
+	doc := collection.Doc(docID)
+	field, err := doc.Get(context.Background())
+	if err != nil {
+		fmt.Errorf("error get data: %v", err)
+		//TODO 現状ないものを取得した場合落ちる
+	}
+	var favorites UserWithFavorites
+
+	if field != nil {
+		favorites = UserWithFavorites{
+			Favorites: field.Data()["Favorites"].([]interface{}),
+			User: User{
+				UID:  field.Data()["UID"].(string),
+				Name: field.Data()["Name"].(string),
+			},
+		}
+	}
+	return favorites
 }

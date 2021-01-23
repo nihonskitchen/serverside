@@ -147,3 +147,22 @@ func DeleteUser(ctx *fiber.Ctx) error {
 		"success": "Deleted User",
 	})
 }
+
+// GetFavoritesByUID is called by GET /api/users/:id/favorites
+func GetFavoritesByUID(ctx *fiber.Ctx) error {
+	//ドキュメントIDを渡す必要がある
+	docID := ctx.Params("id")
+	if docID == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "No Document ID",
+		})
+	}
+	favorites := repositories.FindFavoritesByUID(ctx, docID)
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "Got Favorites by UID",
+		"data": fiber.Map{
+			"favorites": favorites,
+		},
+	})
+}
