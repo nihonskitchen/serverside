@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"cloud.google.com/go/firestore"
@@ -37,7 +36,7 @@ func FindUserByID(ctx *fiber.Ctx, docID string) User {
 	doc := collection.Doc(docID)
 	field, err := doc.Get(context.Background())
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 		//TODO 現状ないものを取得した場合落ちる
 	}
 	var user User
@@ -67,7 +66,7 @@ func FindAllUsers() []User {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
+			log.Printf("Failed to iterate: %v", err)
 		}
 		user := User{
 			UID:  doc.Data()["UID"].(string),
@@ -94,7 +93,7 @@ func SaveUser(user User) (User, error) {
 	}, firestore.MergeAll)
 
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 	}
 
 	return user, err
@@ -109,7 +108,7 @@ func UpdateUser(docID string, user User) (User, error) {
 	_, err := client.Collection(usersCollectionName).Doc(docID).Set(ctx, user)
 
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 	}
 
 	return user, err
@@ -125,7 +124,7 @@ func DeleteUserByID(docID string) error {
 	// 値の取得
 	_, err := client.Collection(usersCollectionName).Doc(docID).Delete(ctx)
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 	}
 	return nil
 }
@@ -141,7 +140,7 @@ func FindFavoritesByUID(ctx *fiber.Ctx, docID string) UserWithFavorites {
 	doc := collection.Doc(docID)
 	field, err := doc.Get(context.Background())
 	if err != nil {
-		fmt.Errorf("error get data: %v", err)
+		log.Printf("error get data: %v", err)
 		//TODO 現状ないものを取得した場合落ちる
 	}
 	var favorites UserWithFavorites
