@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"fmt"
+	"log"
+	"net/url"
 
 	fiber "github.com/gofiber/fiber/v2"
 	repositories "github.com/nihonskitchen/serverside/repositories"
@@ -125,6 +127,10 @@ func GetAllRecipesByUID(ctx *fiber.Ctx) error {
 // GetAllRecipesByName is called by GET /api/recipes/name/:name
 func GetAllRecipesByName(ctx *fiber.Ctx) error {
 	Name := ctx.Params("name")
+	Name, err := url.PathUnescape(Name)
+	if err != nil {
+		log.Fatal(err)
+	}
 	recipes, err := repositories.FindAllRecipesByName(Name)
 	if err != nil {
 		return ctx.Status(500).JSON(fiber.Map{
